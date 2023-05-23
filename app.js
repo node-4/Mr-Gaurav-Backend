@@ -8,15 +8,13 @@ const cors = require("cors");
 const errorMiddleware = require("./middleware/error");
 const upload = require("./middleware/fileUpload");
 
-
 // require("dotenv").config();
 
-
 app.use(
-  cors({
-    origin: true,
-    credentials: true,  
-  })
+    cors({
+        origin: true,
+        credentials: true,
+    })
 );
 app.use(express.json({ limit: "50mb" }));
 app.use(cookieParser());
@@ -27,9 +25,11 @@ app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 //   console.log(req.files);
 //   res.send(req.files);
 // });
-
+app.get("/", (req, res) => {
+    res.send("Hello World!");
+});
 app.get("/getImages/:image", (req, res) => {
-  res.sendFile(__dirname + `/uploads/${req.params.image}`);
+    res.sendFile(__dirname + `/uploads/${req.params.image}`);
 });
 
 // Route Imports
@@ -42,12 +42,12 @@ const address = require("./routes/addressRoute");
 const vender = require("./routes/venderRoute");
 const coupon = require("./routes/couponRoute");
 const cart = require("./routes/cartRoutes");
-const notify = require('./routes/notification')
-const driver = require('./routes/driver_Router');
-const banner = require('./routes/banner')
-const help = require('./routes/helpandsupport');
-const terms = require('./routes/terms');
-const policy = require('./routes/policy');
+const notify = require("./routes/notification");
+const driver = require("./routes/driver_Router");
+const banner = require("./routes/banner");
+const help = require("./routes/helpandsupport");
+const terms = require("./routes/terms");
+const policy = require("./routes/policy");
 
 app.use("/api/v1", product);
 app.use("/api/v1", user);
@@ -58,12 +58,12 @@ app.use("/api/v1", address);
 app.use("/api/v1/vender", vender);
 app.use("/api/v1/coupon", coupon);
 app.use("/api/v1/cart", cart);
-app.use('/api/v1/driver', driver);
-app.use('/api/v1/notify', notify);
-app.use('/api/v1/banner', banner)
-app.use('/api/v1/help',help );
-app.use('/api/v1/terms', terms);
-app.use('/api/v1/privacy', policy);
+app.use("/api/v1/driver", driver);
+app.use("/api/v1/notify", notify);
+app.use("/api/v1/banner", banner);
+app.use("/api/v1/help", help);
+app.use("/api/v1/terms", terms);
+app.use("/api/v1/privacy", policy);
 app.use(errorMiddleware);
 
 module.exports = app;
