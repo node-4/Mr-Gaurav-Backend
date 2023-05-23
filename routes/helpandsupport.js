@@ -1,5 +1,5 @@
 const express = require('express');
-const help = require('../controllers/helpandsupport');
+const help = require('../controllers/helpandSupport');
 const auth = require('../middleware/auth');
 
 
