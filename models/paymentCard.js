@@ -23,6 +23,6 @@ const Schema = mongoose.Schema({
     },
 });
 
-const banner = mongoose.model("banner", Schema);
+const banner = mongoose.model("card", Schema);
 
 module.exports = banner;
