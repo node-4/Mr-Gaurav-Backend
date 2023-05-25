@@ -1,5 +1,5 @@
 const offerController = require("../controllers/offer");
-const { authJwt, objectId } = require("../middlewares");
+const { authJwt, objectId } = require("../middleware");
 var multer = require("multer");
 const path = require("path");
 const storage = multer.diskStorage({
