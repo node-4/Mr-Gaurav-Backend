@@ -20,7 +20,7 @@ const upload = require("../middleware/fileUpload");
 const router = express.Router();
 
 router.route("/products").get(getAllProducts);
-router.route("/products/by/category/:id").get(getProductByCategory);
+router.route("/products/by/category").post(getProductByCategory);
 router.route("/add/wishlist/:id").post(isAuthenticatedUser, createWishlist);
 router
   .route("/remove/wishlist/:id")

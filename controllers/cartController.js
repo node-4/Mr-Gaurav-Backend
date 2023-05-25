@@ -7,14 +7,10 @@ const cartModel = require("../models/cartModel");
 exports.addToCart = async (req, res, next) => {
   try {
     const  product  = req.params.id;
-    let cart = await Cart.findOne({
-      user: req.body.userId
-    });
-
+    let cart = await Cart.findOne({user: req.body.userId});
     if (!cart) {
       cart = await createCart (req.body.userId);
     }
-
     const productIndex = cart.products.findIndex((cartProduct) => {
       return cartProduct.product.toString() == product;
     });
@@ -185,13 +181,3 @@ const getCartResponse = async ( cart, req,res) => {
     throw error;
   }
 };
-
-
-const orderByCOD = async(req,res) => {
-  try{
-  
-  }catch(err){
-    console.log(err)
-    throw err
-  }
-}

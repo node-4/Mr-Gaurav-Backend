@@ -6,7 +6,8 @@ exports.AddBanner = async (req, res) => {
     try {
         const data = {
             image: req.body.image,
-            desc: req.body.desc
+            desc: req.body.desc,
+            categoryType: req.body.categoryType
         }
         const Data = await banner.create(data);
         res.status(200).json({
@@ -23,7 +24,7 @@ exports.AddBanner = async (req, res) => {
 
 exports.getBanner = async (req, res) => {
     try {
-        const Banner = await banner.find();
+        const Banner = await banner.find({categoryType: req.params.categoryType});
         res.status(200).json({
             message: "All Banners",
             data: Banner
