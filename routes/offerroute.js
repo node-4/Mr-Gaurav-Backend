@@ -1,5 +1,5 @@
 const offerController = require("../controllers/offer");
-const { authJwt, objectId } = require("../middleware");
+const { isAuthenticatedUser, authorizeRoles } = require("../middleware/auth");
 var multer = require("multer");
 const path = require("path");
 const storage = multer.diskStorage({
@@ -16,7 +16,7 @@ module.exports = (app) => {
     app.get("api/v1/admin/offer/:id", offerController.getId);
     app.post("api/v1/admin/offer", offerController.getAll);
     app.post("api/v1/admin/create",upload.single("image"),[authJwt.isAdmin],offerController.create);
-    app.patch("api/v1/admin/offer/:id",[authJwt.isAdmin, objectId.validId],offerController.update);
-    app.delete("api/v1/admin/offer/:id",[authJwt.isAdmin, objectId.validId],offerController.delete);
+    app.patch("api/v1/admin/offer/:id",isAuthenticatedUser, authorizeRoles("admin"),offerController.update);
+    app.delete("api/v1/admin/offer/:id", isAuthenticatedUser, authorizeRoles("admin"),offerController.delete);
 
 };
