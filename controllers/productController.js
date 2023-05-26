@@ -370,33 +370,33 @@ exports.myWishlist = catchAsyncErrors(async (req, res, next) => {
 exports.getProductByCategory = catchAsyncErrors(async (req, res, next) => {
   try {
     let query = { };
-    if (req.body.size) {
-        query.size = req.body.size
+    if (req.params.size) {
+        query.size = req.params.size
     }
-    if (req.body.color) {
-        query.color = req.body.color
+    if (req.params.color) {
+        query.color = req.params.color
     }
-    if (req.body.brand) {
-        query.brand = req.body.brand
+    if (req.params.brand) {
+        query.brand = req.params.brand
     }
-    if (req.body.categoryId) {
-        query.category = req.body.categoryId
+    if (req.params.categoryId) {
+        query.category = req.params.categoryId
     }
-    if (req.body.categoryType) {
-        query.categoryType = req.body.categoryType
+    if (req.params.categoryType) {
+        query.categoryType = req.params.categoryType
     }
-    if (req.body.lowwestPrice && !req.body.greatestPrice) {
-        query.price = { $gte: req.body.lowwestPrice };
+    if (req.params.lowwestPrice && !req.params.greatestPrice) {
+        query.price = { $gte: req.params.lowwestPrice };
     }
-    if (!req.body.lowwestPrice && req.body.greatestPrice) {
-        query.price = { $lte: req.body.greatestPrice };
+    if (!req.params.lowwestPrice && req.params.greatestPrice) {
+        query.price = { $lte: req.params.greatestPrice };
     }
-    if (req.body.lowwestPrice && req.body.greatestPrice) {
-        query.$and = [{ price: { $gte: req.body.lowwestPrice } },{ price: { $lte: req.body.greatestPrice } },]
+    if (req.params.lowwestPrice && req.params.greatestPrice) {
+        query.$and = [{ price: { $gte: req.params.lowwestPrice } },{ price: { $lte: req.params.greatestPrice } },]
     }
     let options = {
-        page: Number(req.body.page) || 1,
-        limit: Number(req.body.limit) || 300,
+        page: Number(req.params.page) || 1,
+        limit: Number(req.params.limit) || 300,
         sort: { createdAt: -1 },
     };
     const producyBycategory = await Product.paginate(query, options);

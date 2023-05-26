@@ -37,9 +37,6 @@ const userSchema = new mongoose.Schema({
     type: Number,
     require: false
   }, 
-  otp: {
-    type: String
-  },
   image: {
     type: String,
   },

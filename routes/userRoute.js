@@ -15,20 +15,19 @@ const {
   signInWithGoogle,
   accountVerificationOTP,
   passwordResetOtp,
-  sendOtp,
   loginVendor,
   registerVonder,
   AddUser,
   ChagePaymentStatus, 
   GetALlSubdomain
 } = require("../controllers/userController");
+const userController = require("../controllers/userController");
+
 const { isAuthenticatedUser, authorizeRoles } = require("../middleware/auth");
 const { otpLimiter } = require("../middleware/rateLimiter");
 const upload = require("../middleware/fileUpload");
 
 const router = express.Router();
-
-// router.route("/sendOTP").post(otpLimiter, sendOTP);
 
 router.route("/verifyRegistration").post(accountVerificationOTP);
 

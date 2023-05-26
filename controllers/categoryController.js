@@ -30,13 +30,17 @@ exports.getCategories = catchAsyncErrors(async (req, res, next) => {
     });
 });
 
-exports.getCategoriesbasedonMaincategories = catchAsyncErrors(async (req, res, next) => {
-    const categories = await Category.find({categoryType: req.params.categoryType});
-    res.status(201).json({
-        success: true,
-        categories,
-    });
-});
+exports.getCategoriesbasedonMaincategories = catchAsyncErrors(
+    async (req, res, next) => {
+        const categories = await Category.find({
+            categoryType: req.params.categoryType,
+        });
+        res.status(201).json({
+            success: true,
+            categories,
+        });
+    }
+);
 exports.updateCategory = catchAsyncErrors(async (req, res, next) => {
     const { id } = req.params;
     const category = await Category.findById(id);
