@@ -35,7 +35,7 @@ exports.createProduct = catchAsyncErrors(async (req, res, next) => {
     for (var i = 0; i < Images.length; i++) {
         images.push({ img: Images[i].url });
     }
-    const categories = await category.findById({_id:req.body.category});
+    const categories = await category.findById({ _id: req.body.category });
     const data = {
         name: req.body.name,
         description: req.body.description,
@@ -53,7 +53,7 @@ exports.createProduct = catchAsyncErrors(async (req, res, next) => {
     };
     const product = await Product.create(data);
 
-    res.status(201).json({ success: true,product,});
+    res.status(201).json({ success: true, product });
 });
 
 // Get All Product
@@ -368,47 +368,50 @@ exports.myWishlist = catchAsyncErrors(async (req, res, next) => {
     });
 });
 exports.getProductByCategory = catchAsyncErrors(async (req, res, next) => {
-  try {
-    let query = { };
-    if (req.query.size) {
-        query.size = req.query.size
+    try {
+        let query = {};
+        if (req.query.size) {
+            query.size = req.query.size;
+        }
+        if (req.query.color) {
+            query.color = req.query.color;
+        }
+        if (req.query.brand) {
+            query.brand = req.query.brand;
+        }
+        if (req.query.categoryId) {
+            query.category = req.query.categoryId;
+        }
+        if (req.query.categoryType) {
+            query.categoryType = req.query.categoryType;
+        }
+        if (req.query.lowwestPrice && !req.query.greatestPrice) {
+            query.price = { $gte: req.query.lowwestPrice };
+        }
+        if (!req.query.lowwestPrice && req.query.greatestPrice) {
+            query.price = { $lte: req.query.greatestPrice };
+        }
+        if (req.query.lowwestPrice && req.query.greatestPrice) {
+            query.$and = [
+                { price: { $gte: req.query.lowwestPrice } },
+                { price: { $lte: req.query.greatestPrice } },
+            ];
+        }
+        // let options = {
+        //     page: Number(req.query.page) || 1,
+        //     limit: Number(req.query.limit) || 300,
+        //     sort: { createdAt: -1 },
+        // };
+        const producyBycategory = await Product.find(query);
+        res.status(200).json({
+            message: "get Successfully",
+            data: producyBycategory,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: error.message,
+        });
     }
-    if (req.query.color) {
-        query.color = req.query.color
-    }
-    if (req.query.brand) {
-        query.brand = req.query.brand
-    }
-    if (req.query.categoryId) {
-        query.category = req.query.categoryId
-    }
-    if (req.query.categoryType) {
-        query.categoryType = req.query.categoryType
-    }
-    if (req.query.lowwestPrice && !req.query.greatestPrice) {
-        query.price = { $gte: req.query.lowwestPrice };
-    }
-    if (!req.query.lowwestPrice && req.query.greatestPrice) {
-        query.price = { $lte: req.query.greatestPrice };
-    }
-    if (req.query.lowwestPrice && req.query.greatestPrice) {
-        query.$and = [{ price: { $gte: req.query.lowwestPrice } },{ price: { $lte: req.query.greatestPrice } },]
-    }
-    // let options = {
-    //     page: Number(req.query.page) || 1,
-    //     limit: Number(req.query.limit) || 300,
-    //     sort: { createdAt: -1 },
-    // };
-    const producyBycategory = await Product.find(query);
-      res.status(200).json({
-          message: "get Successfully",
-          data: producyBycategory,
-      });
-  } catch (error) {
-      res.status(500).json({
-          message: error.message,
-      });
-  }
 });
 // Get All Product (Admin)
 exports.getNewArivalProducts = catchAsyncErrors(async (req, res, next) => {
@@ -417,4 +420,8 @@ exports.getNewArivalProducts = catchAsyncErrors(async (req, res, next) => {
         success: true,
         products,
     });
+});
+exports.getDemandedProducts = catchAsyncErrors(async (req, res, next) => {
+    const products = await Product.find({}).sort({ ratings: -1 });
+    res.status(200).json({success: true,products});
 });
