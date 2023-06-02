@@ -415,13 +415,28 @@ exports.getProductByCategory = catchAsyncErrors(async (req, res, next) => {
 });
 // Get All Product (Admin)
 exports.getNewArivalProducts = catchAsyncErrors(async (req, res, next) => {
-    const products = await Product.find({}).sort({ createdAt: -1 }).limit(2);
-    res.status(200).json({
-        success: true,
-        products,
-    });
+    if (req.query.categoryType != (null || undefined)) {
+        const products = await Product.find({
+            categoryType: req.query.categoryType,
+        })
+            .sort({ createdAt: -1 })
+            .limit(2);
+        res.status(200).json({ success: true, products });
+    } else {
+        const products = await Product.find({})
+            .sort({ createdAt: -1 })
+            .limit(2);
+        res.status(200).json({ success: true, products });
+    }
 });
 exports.getDemandedProducts = catchAsyncErrors(async (req, res, next) => {
-    const products = await Product.find({}).sort({ ratings: -1 });
-    res.status(200).json({success: true,products});
+    if (req.query.categoryType != (null || undefined)) {
+        const products = await Product.find({
+            categoryType: req.query.categoryType,
+        }).sort({ ratings: -1 });
+        res.status(200).json({ success: true, products });
+    } else {
+        const products = await Product.find({}).sort({ ratings: -1 });
+        res.status(200).json({ success: true, products });
+    }
 });
