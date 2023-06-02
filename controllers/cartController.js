@@ -7,8 +7,9 @@ const cartModel = require("../models/cartModel");
 exports.addToCart = async (req, res, next) => {
   try {
     const  product  = req.params.id;
-    let cart = await Cart.findOne({user: req.body.userId});
+    let cart = await Cart.findOne({user: req.user._id});
     if (!cart) {
+      req.body.userId=req.user._id;
       cart = await createCart (req.body.userId);
     }
     const productIndex = cart.products.findIndex((cartProduct) => {
@@ -72,7 +73,7 @@ exports.updateQuantity = async (req, res, next) => {
 
 exports.getCart = async (req, res, next) => {
     try {
-        const cart = await Cart.findOne({user: req.params.id});
+        const cart = await Cart.findOne({user: req.user._id});
       if(!cart){
         return res.status(201).json({
           message: "No Data Found "

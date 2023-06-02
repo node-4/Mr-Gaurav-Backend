@@ -48,7 +48,7 @@ exports.createProduct = catchAsyncErrors(async (req, res, next) => {
         categoryType: categories.categoryType,
         Stock: req.body.Stock,
         numOfReviews: req.body.numOfReviews,
-        user: req.body.user,
+        user: req.user._id,
         reviews: req.body.review,
     };
     const product = await Product.create(data);
@@ -326,7 +326,7 @@ exports.createWishlist = catchAsyncErrors(async (req, res, next) => {
     let wishList = await Wishlist.findOne({ user: req.user._id });
     if (!wishList) {
         wishList = new Wishlist({
-            user: req.user,
+            user: req.user._id,
         });
     }
     wishList.products.addToSet(product);
@@ -370,36 +370,36 @@ exports.myWishlist = catchAsyncErrors(async (req, res, next) => {
 exports.getProductByCategory = catchAsyncErrors(async (req, res, next) => {
   try {
     let query = { };
-    if (req.params.size) {
-        query.size = req.params.size
+    if (req.query.size) {
+        query.size = req.query.size
     }
-    if (req.params.color) {
-        query.color = req.params.color
+    if (req.query.color) {
+        query.color = req.query.color
     }
-    if (req.params.brand) {
-        query.brand = req.params.brand
+    if (req.query.brand) {
+        query.brand = req.query.brand
     }
-    if (req.params.categoryId) {
-        query.category = req.params.categoryId
+    if (req.query.categoryId) {
+        query.category = req.query.categoryId
     }
-    if (req.params.categoryType) {
-        query.categoryType = req.params.categoryType
+    if (req.query.categoryType) {
+        query.categoryType = req.query.categoryType
     }
-    if (req.params.lowwestPrice && !req.params.greatestPrice) {
-        query.price = { $gte: req.params.lowwestPrice };
+    if (req.query.lowwestPrice && !req.query.greatestPrice) {
+        query.price = { $gte: req.query.lowwestPrice };
     }
-    if (!req.params.lowwestPrice && req.params.greatestPrice) {
-        query.price = { $lte: req.params.greatestPrice };
+    if (!req.query.lowwestPrice && req.query.greatestPrice) {
+        query.price = { $lte: req.query.greatestPrice };
     }
-    if (req.params.lowwestPrice && req.params.greatestPrice) {
-        query.$and = [{ price: { $gte: req.params.lowwestPrice } },{ price: { $lte: req.params.greatestPrice } },]
+    if (req.query.lowwestPrice && req.query.greatestPrice) {
+        query.$and = [{ price: { $gte: req.query.lowwestPrice } },{ price: { $lte: req.query.greatestPrice } },]
     }
-    let options = {
-        page: Number(req.params.page) || 1,
-        limit: Number(req.params.limit) || 300,
-        sort: { createdAt: -1 },
-    };
-    const producyBycategory = await Product.paginate(query, options);
+    // let options = {
+    //     page: Number(req.query.page) || 1,
+    //     limit: Number(req.query.limit) || 300,
+    //     sort: { createdAt: -1 },
+    // };
+    const producyBycategory = await Product.find(query);
       res.status(200).json({
           message: "get Successfully",
           data: producyBycategory,

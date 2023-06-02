@@ -32,9 +32,7 @@ exports.getCategories = catchAsyncErrors(async (req, res, next) => {
 
 exports.getCategoriesbasedonMaincategories = catchAsyncErrors(
     async (req, res, next) => {
-        const categories = await Category.find({
-            categoryType: req.params.categoryType,
-        });
+        const categories = await Category.find({ categoryType: req.params.categoryType});
         res.status(201).json({
             success: true,
             categories,

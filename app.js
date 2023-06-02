@@ -55,7 +55,7 @@ app.use("/api/v1", product);
 app.use("/api/v1", user);
 app.use("/api/v1", order);
 app.use("/api/v1", payment);
-app.use("/", offer);
+app.use("/api/v1", offer);
 app.use("/api/v1", category);
 app.use("/api/v1", card);
 app.use("/api/v1", address);

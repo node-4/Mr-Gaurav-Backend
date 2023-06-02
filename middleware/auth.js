@@ -5,16 +5,13 @@ const User = require("../models/userModel");
 
 exports.isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
     const token = req.get("Authorization")?.split("Bearer ")[1];
-    console.log(token)
   if (!token) {
     return next(new ErrorHander("Please Login to access this resource", 401));
   }
 
-  const decodedData = jwt.verify(token, process.env.JWT_SECRET);
-
+  const decodedData = jwt.verify(token, process.env.SECRET);
   req.user = await User.findById(decodedData.user_id);
-  console.log(req.user)
-
+  console.log("--auth file----------",req.user._id, "========usertype========",req.user.role)
   next();
 });
 

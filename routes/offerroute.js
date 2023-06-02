@@ -11,12 +11,12 @@ const storage = multer.diskStorage({
     },
 });
 const upload = multer({ storage: storage });
+const express = require("express");
+const router = express.Router();
+router.get("/admin/offer/:id", offerController.getId);
+router.post("/admin/offer", offerController.getAll);
+router.post("/admin/create",upload.single("image"),authorizeRoles("admin"),offerController.create);
+router.patch("/admin/offer/:id",isAuthenticatedUser, authorizeRoles("admin"),offerController.update);
+router.delete("/admin/offer/:id", isAuthenticatedUser, authorizeRoles("admin"),offerController.delete);
 
-module.exports = (app) => {
-    app.get("api/v1/admin/offer/:id", offerController.getId);
-    app.post("api/v1/admin/offer", offerController.getAll);
-    app.post("api/v1/admin/create",upload.single("image"),[authJwt.isAdmin],offerController.create);
-    app.patch("api/v1/admin/offer/:id",isAuthenticatedUser, authorizeRoles("admin"),offerController.update);
-    app.delete("api/v1/admin/offer/:id", isAuthenticatedUser, authorizeRoles("admin"),offerController.delete);
-
-};
+module.exports = router;

@@ -1,24 +1,14 @@
 const express = require("express");
-const {
-    createCategory,
-    getCategories,
-    createSubCategory,
-    DeleteCategory,
-    TotalCategory,
-    getCategoriesbasedonMaincategories,
-    updateCategory,
-} = require("../controllers/categoryController");
+const { createCategory, getCategories, createSubCategory, DeleteCategory, TotalCategory, getCategoriesbasedonMaincategories, updateCategory,} = require("../controllers/categoryController");
 const { isAuthenticatedUser, authorizeRoles } = require("../middleware/auth");
 const upload = require("../middleware/fileUpload");
 
 const router = express.Router();
 
-router.route("/admin/category/new").post(createCategory);
+router.post("/admin/category/new",createCategory);
 
 router.route("/admin/category/update/:id").put(updateCategory);
-router
-    .get("/admin/category/get/:categoryType")
-    .get(getCategoriesbasedonMaincategories);
+router.get("/admin/category/get/:categoryType",getCategoriesbasedonMaincategories);
 
 router.route("/admin/subCategory/new").post(createSubCategory);
 
