@@ -2,7 +2,7 @@ const { isAuthenticatedUser, authorizeRoles } = require("../middleware/auth");
 const router = require("express").Router();
 const cartController = require("../controllers/cartController");
 
-router.post("/:id",  cartController.addToCart);
+router.post("/:id", isAuthenticatedUser, cartController.addToCart);
 
 router.put("/:id", isAuthenticatedUser,cartController.updateQuantity);
 
