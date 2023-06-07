@@ -44,16 +44,21 @@ exports.signInWithGoogle = catchAsyncErrors(async (req, res, next) => {
 // Register a User
 exports.registerUser = catchAsyncErrors(async (req, res, next) => {
     const { name, phone, password, email, role } = req.body;
-    const user = await User.create({ name, phone, email, password, role });
-    await Otp.findOneAndDelete({ user: user._id });
-    const otp = await otpHelper.generateOTP(5);
-    const otpType = "account_verification";
-    await Otp.create({ user: user._id, otp: otp, type: otpType });
-    let obj = {
-        user: user,
-        otp: otp,
-    };
-    res.status(201).json({ data: obj, success: true });
+    const user2 = await User.findOne({ name:name,phone: phone, email:email, role:role });
+    if(user2){
+        res.status(409).json({message: "Already exit!",status: 409,});
+    }else{
+        const user = await User.create({ name, phone, email, password, role });
+        await Otp.findOneAndDelete({ user: user._id });
+        const otp = await otpHelper.generateOTP(5);
+        const otpType = "account_verification";
+        await Otp.create({ user: user._id, otp: otp, type: otpType });
+        let obj = {
+            user: user,
+            otp: otp,
+        };
+        res.status(201).json({ data: obj, success: true });
+    }
 });
 
 exports.GetALlSubdomain = catchAsyncErrors(async (req, res) => {
