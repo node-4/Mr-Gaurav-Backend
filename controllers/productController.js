@@ -440,3 +440,25 @@ exports.getDemandedProducts = catchAsyncErrors(async (req, res, next) => {
         res.status(200).json({ success: true, products });
     }
 });
+
+exports.getProductSearch = catchAsyncErrors(async (req, res, next) => {
+    try {
+        let query = {};
+        if (req.body.search) {
+            query.$or = [
+                { name: { $regex: req.body.search, $options: 'i' } },
+                { description: { $regex: req.body.search, $options: 'i' } },
+                { size: { $regex: req.body.search, $options: 'i' } },
+                { color: { $regex: req.body.search, $options: 'i' } },
+                { brand: { $regex: req.body.search, $options: 'i' } },
+                { categoryType: { $regex: req.body.search, $options: 'i' } },
+            ]
+        }
+        const producyBycategory = await Product.find(query);
+        res.status(200).json({ message: "get Successfully", data: producyBycategory, });
+    } catch (error) {
+        res.status(500).json({
+            message: error.message,
+        });
+    }
+});

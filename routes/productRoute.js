@@ -1,5 +1,5 @@
 const express = require("express");
-const {  getAllProducts,  createProduct,  updateProduct,getNewArivalProducts,getDemandedProducts,  deleteProduct,  getProductDetails,  createProductReview,  getProductReviews,  deleteReview,  getAdminProducts,  createWishlist,  removeFromWishlist,  myWishlist,  getProductByCategory} = require("../controllers/productController");
+const {  getAllProducts,  createProduct, getProductSearch, updateProduct,getNewArivalProducts,getDemandedProducts,  deleteProduct,  getProductDetails,  createProductReview,  getProductReviews,  deleteReview,  getAdminProducts,  createWishlist,  removeFromWishlist,  myWishlist,  getProductByCategory} = require("../controllers/productController");
 const { isAuthenticatedUser, authorizeRoles } = require("../middleware/auth");
 const upload = require("../middleware/fileUpload");
 
@@ -12,7 +12,7 @@ router.route("/productsbyfilter").post(getProductByCategory);
 router.route("/add/wishlist/:id").post( isAuthenticatedUser,createWishlist);
 router.route("/remove/wishlist/:id").put( isAuthenticatedUser,removeFromWishlist);
 router.route("/wishlist/me").get(isAuthenticatedUser, myWishlist);
-
+router.route("/getProductSearch").post(getProductSearch);
 router.route("/admin/products").get(  getAdminProducts);
 
 router.route("/admin/product/new").post( upload.array("image"), isAuthenticatedUser, createProduct);
