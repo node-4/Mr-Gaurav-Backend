@@ -18,30 +18,30 @@ cloudinary.config({
 
 // Create Product -- Admin
 exports.createProduct = catchAsyncErrors(async (req, res, next) => {
-    let images = [];
-    let leaselistingPicture = [];
-    if (req.files.length > 0) {
-        leaselistingPicture = req.files.map((file) => {
-            return { path: file.path, filename: file.filename };
-        });
-    }
-    const uploadPromises = leaselistingPicture.map(async (image) => {
-        const result = await cloudinary.uploader.upload(image.path, {
-            public_id: image.filename,
-        });
-        return result;
-    });
-    const Images = await Promise.all(uploadPromises);
-    for (var i = 0; i < Images.length; i++) {
-        images.push({ img: Images[i].url });
-    }
+    // let images = [];
+    // let leaselistingPicture = [];
+    // if (req.files.length > 0) {
+    //     leaselistingPicture = req.files.map((file) => {
+    //         return { path: file.path, filename: file.filename };
+    //     });
+    // }
+    // const uploadPromises = leaselistingPicture.map(async (image) => {
+    //     const result = await cloudinary.uploader.upload(image.path, {
+    //         public_id: image.filename,
+    //     });
+    //     return result;
+    // });
+    // const Images = await Promise.all(uploadPromises);
+    // for (var i = 0; i < Images.length; i++) {
+    //     images.push({ img: Images[i].url });
+    // }
     const categories = await category.findById({ _id: req.body.category });
     const data = {
         name: req.body.name,
         description: req.body.description,
         price: req.body.price,
         ratings: req.body.ratings,
-        images: Images,
+        images: req.body.Images,
         size: req.body.size,
         colors: req.body.colors,
         category: categories._id,

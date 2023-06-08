@@ -15,7 +15,7 @@ router.route("/wishlist/me").get(isAuthenticatedUser, myWishlist);
 router.route("/getProductSearch").post(getProductSearch);
 router.route("/admin/products").get(  getAdminProducts);
 
-router.route("/admin/product/new").post( upload.array("image"), isAuthenticatedUser, createProduct);
+router.route("/admin/product/new").post(isAuthenticatedUser, createProduct);
 
 router.route("/admin/product/:id").put(isAuthenticatedUser, updateProduct).delete(isAuthenticatedUser, deleteProduct);
 
