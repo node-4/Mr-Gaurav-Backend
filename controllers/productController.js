@@ -144,11 +144,13 @@ exports.updateProduct = catchAsyncErrors(async (req, res, next) => {
         // Images Start Here
         console.log(req.body.images);
         let images = [];
-
         if (req.body.images) {
-            images.push(req.body.images);
+            let obj ={
+                 img:  req.body.images
+            }
+            images.push(obj);
         } else {
-            images = req.body.images;
+            images = product.images;
         }
 
         // if (images !== undefined) {
