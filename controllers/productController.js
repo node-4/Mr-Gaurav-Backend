@@ -180,6 +180,7 @@ exports.updateProduct = catchAsyncErrors(async (req, res, next) => {
                 description: req.body.description,
                 price: req.body.price,
                 category: req.body.category,
+                images: req.body.images
             },
             {
                 new: true,
