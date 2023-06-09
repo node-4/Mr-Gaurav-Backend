@@ -1,11 +1,21 @@
 const banner = require('../models/banner')
-
+const cloudinary = require("cloudinary");
+cloudinary.config({
+    cloud_name: "https-www-pilkhuwahandloom-com",
+    api_key: "886273344769554",
+    api_secret: "BVicyMGE04PrE7vWSorJ5txKmPs",
+});
 
 
 exports.AddBanner = async (req, res) => {
     try {
+        let image;
+        if (req.body.image) {
+            var result = await cloudinary.uploader.upload(req.body.image, { resource_type: "auto" });
+            image = result.secure_url;
+        }
         const data = {
-            image: req.body.image,
+            image: image,
             desc: req.body.desc,
             categoryType: req.body.categoryType
         }
@@ -24,7 +34,7 @@ exports.AddBanner = async (req, res) => {
 
 exports.getBanner = async (req, res) => {
     try {
-        const Banner = await banner.find({categoryType: req.params.categoryType});
+        const Banner = await banner.find({ categoryType: req.params.categoryType });
         res.status(200).json({
             message: "All Banners",
             data: Banner
@@ -52,13 +62,13 @@ exports.getById = async (req, res) => {
     }
 }
 
-exports.DeleteBanner = async(req,res) => {
-    try{
+exports.DeleteBanner = async (req, res) => {
+    try {
         const Banner = await banner.findByIdAndDelete({ _id: req.params.id });
         res.status(200).json({
             message: "Delete Banner ",
         },)
-    }catch(err){
+    } catch (err) {
         res.status(400).json({
             message: err.message
         })
