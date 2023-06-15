@@ -2,10 +2,15 @@ const Order = require("../models/orderModel");
 const Product = require("../models/productModel");
 const Cart = require("../models/cartModel");
 const Vender = require("../models/vendorModel");
+const transaction = require("../models/transactionModel");
 const ErrorHander = require("../utils/errorhander");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const Razorpay = require("razorpay");
 const OrderReturn = require('../models/order_return')
+const refundRequest = require('../models/refundRequest');
+const orderModel = require("../models/orderModel");
+const wallet = require("../models/wallet");
+const Invoice = require('../models/invoice_model');
 
 const razorpayInstance = new Razorpay({
   key_id: "rzp_test_8VsYUQmn8hHm69",
@@ -66,7 +71,6 @@ exports.getSingleOrder = catchAsyncErrors(async (req, res, next) => {
     order,
   });
 });
-
 // get logged in user  Orders
 exports.myOrders = catchAsyncErrors(async (req, res, next) => {
   const orders = await Order.find({ user: req.user });
@@ -76,7 +80,6 @@ exports.myOrders = catchAsyncErrors(async (req, res, next) => {
     orders,
   });
 });
-
 // get all Orders -- Admin
 exports.getAllOrders = catchAsyncErrors(async (req, res, next) => {
   const orders = await Order.find().populate("orderItems.product");
@@ -93,7 +96,6 @@ exports.getAllOrders = catchAsyncErrors(async (req, res, next) => {
     orders,
   });
 });
-
 //get all Orders - Vender
 exports.getAllOrdersVender = catchAsyncErrors(async (req, res, next) => {
   const orders = await Order.aggregate([
@@ -115,7 +117,6 @@ exports.getAllOrdersVender = catchAsyncErrors(async (req, res, next) => {
     orders,
   });
 });
-
 // // update Order Status -- Admin
 exports.updateOrder = catchAsyncErrors(async (req, res, next) => {
   const order = await Order.findById(req.params.id);
@@ -144,7 +145,6 @@ exports.updateOrder = catchAsyncErrors(async (req, res, next) => {
     success: true,
   });
 });
-
 async function updateStock(id, quantity) {
   const product = await Product.findById(id);
 
@@ -152,7 +152,6 @@ async function updateStock(id, quantity) {
 
   await product.save({ validateBeforeSave: false });
 }
-
 // // delete Order -- Admin
 // exports.deleteOrder = catchAsyncErrors(async (req, res, next) => {
 //   const order = await Order.findById(req.params.id);
@@ -167,7 +166,6 @@ async function updateStock(id, quantity) {
 //     success: true,
 //   });
 // });
-
 exports.checkout = async (req, res, next) => {
   try {
     await Order.findOneAndDelete({
@@ -232,7 +230,6 @@ exports.checkout = async (req, res, next) => {
     next(error);
   }
 };
-
 exports.placeOrder = async (req, res, next) => {
   try {
     console.log(req.body.userId)
@@ -241,7 +238,7 @@ exports.placeOrder = async (req, res, next) => {
       orderStatus: "unconfirmed",
     });
     console.log(order)
-    
+
     const amount = order.amountToBePaid;
 
     const orderOptions = {
@@ -268,8 +265,6 @@ exports.placeOrder = async (req, res, next) => {
     //next(error);
   }
 };
-
-
 exports.placeOrderCOD = async (req, res, next) => {
   try {
     console.log(req.body.userId)
@@ -278,7 +273,7 @@ exports.placeOrderCOD = async (req, res, next) => {
       orderStatus: "unconfirmed",
     });
     console.log(order)
-    
+
     const amount = order.amountToBePaid;
 
     const orderOptions = {
@@ -297,7 +292,7 @@ exports.placeOrderCOD = async (req, res, next) => {
 
     return res.status(200).json({
       msg: "order id",
-    //  orderId: paymentGatewayOrder.id,
+      //  orderId: paymentGatewayOrder.id,
       amount: amount * 100,
     });
   } catch (error) {
@@ -305,7 +300,6 @@ exports.placeOrderCOD = async (req, res, next) => {
     next(error);
   }
 };
-
 exports.getOrders = async (req, res, next) => {
   try {
     const orders = await Order.find({
@@ -332,90 +326,81 @@ exports.getOrders = async (req, res, next) => {
     })
   }
 };
-
-
-exports.orderReturn =  async(req,res) => {
-  try{
-  const orderId = req.params.id;
-  const data = await Order.findOne({_id: orderId});
-  if(!data){
-    return res.status(500).json({
-      message: "OrderId is Not present "
-    })
-  }else{
-    const Data = {
-      user: data.user,
-      orderId: orderId
+exports.orderReturn = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const data = await Order.findOne({ _id: orderId });
+    if (!data) {
+      return res.status(500).json({
+        message: "OrderId is Not present "
+      })
+    } else {
+      const Data = {
+        user: data.user,
+        orderId: orderId
+      }
+      const returnData = await OrderReturn.create(Data);
+      if (returnData) {
+        res.status(200).json({ details: returnData })
+      }
     }
-    const returnData = await OrderReturn.create(Data);
-    if(returnData){
-      await Order.findByIdAndDelete({_id: orderId});
+  } catch (err) {
+    res.status(400).json({
+      message: err.message
+    })
+  }
+}
+exports.GetAllReturnOrderbyUserId = async (req, res) => {
+  try {
+    const data = await OrderReturn.find({ user: req.params.userId });
+    if (data.length == 0) {
+      return res.status(500).json({
+        message: "No Return list found  this user "
+      })
+    } else {
       res.status(200).json({
-        details: returnData
+        message: data
       })
     }
-  }
-  }catch(err){
-    res.status(400).json({
-      message: err.message
-    })
-  }
-}
-
-exports.GetAllReturnOrderbyUserId = async(req,res) => {
-  try{
- const data = await  OrderReturn.find({user: req.params.userId});
- if(data.length == 0 ){
-  return res.status(500).json({
-    message: "No Return list found  this user "
-  })
- }else{
-  res.status(200).json({
-    message: data
-  })
- }
-  }catch(err){
-    console.log(err);
-    res.status(400).json({
-      message:err.message
-    })
-  }
-}
-
-exports.AllReturnOrder = async(req,res) => {
-  try{
-  const data = await OrderReturn.find();
-  res.status(200).json({
-    message: data
-  })
-  }catch(err){
+  } catch (err) {
     console.log(err);
     res.status(400).json({
       message: err.message
     })
   }
 }
-
-exports.GetReturnByOrderId = async(req,res) => {
-  try{
-  const data = await OrderReturn.findOne({orderId: req.params.id});
-  if(!data){
-    return res.status(500).json({
-      message: "No Data Found "
+exports.AllReturnOrder = async (req, res) => {
+  try {
+    const data = await OrderReturn.find();
+    res.status(200).json({
+      message: data
     })
-  }
-  res.status(200).json({
-    message: data
-  })
-  }catch(err){
+  } catch (err) {
+    console.log(err);
     res.status(400).json({
       message: err.message
     })
   }
 }
-
+exports.GetReturnByOrderId = async (req, res) => {
+  try {
+    const data = await OrderReturn.findOne({ orderId: req.params.id });
+    if (!data) {
+      return res.status(500).json({
+        message: "No Data Found "
+      })
+    }
+    res.status(200).json({
+      message: data
+    })
+  } catch (err) {
+    res.status(400).json({
+      message: err.message
+    })
+  }
+}
 exports.getAllOrders = catchAsyncErrors(async (req, res, next) => {
-  const orders = await Order.find().populate({path: 'user', options: {strictPopulate: true}})
+  const orders = await Order.find().populate({ path: 'user', options: { strictPopulate: true } })
 
   let totalAmount = 0;
 
@@ -429,3 +414,179 @@ exports.getAllOrders = catchAsyncErrors(async (req, res, next) => {
     orders,
   });
 });
+exports.createTransaction = async (req, res, next) => {
+  try {
+    const order = await Order.findOne({ _id: req.params.id });
+    let obj = {
+      user: req.user._id,
+      orderId: order._id,
+      date: Date.now(),
+      amount: req.body.amount,
+      paymentMode: req.body.paymentMode,
+      Status: req.body.status,
+    };
+    const data = await transaction.create(obj);
+    if (data) {
+      order.paymentGatewayOrderId = req.body.payId;
+      if (req.body.status == "Success") {
+        order.orderStatus = "confirmed";
+        order.paymentStatus = "paid";
+        await order.save();
+        const cart = await Cart.findOne({ user: req.user._id });
+        const deleteCart = await Cart.findByIdAndDelete({ _id: cart._id, });
+        return res.status(200).json({ msg: "order id", data: data });
+      } else {
+        return res.status(200).json({ msg: "order id", data: data });
+      }
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+exports.createTransactionbyAdmin = async (req, res, next) => {
+  try {
+    const order = await Order.findOne({ _id: req.params.id });
+    console.log(order, order.user);
+    let obj = {
+      user: order.user,
+      orderId: order._id,
+      date: Date.now(),
+      amount: req.body.amount,
+      paymentMode: req.body.paymentMode,
+      Status: req.body.status,
+    };
+    const data = await transaction.create(obj);
+    if (data) {
+      order.orderStatus = "confirmed";
+      await order.save();
+      return res.status(200).json({ msg: "order id", data: data });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+exports.allTransaction = async (req, res) => {
+  try {
+    const data = await transaction.find().populate("user orderId");
+    res.status(200).json({ totalOrders: data });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+exports.allTransactionUser = async (req, res) => {
+  try {
+    const data = await transaction.find({ user: req.user._id }).populate("user orderId");
+    res.status(200).json({ data: data });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+exports.allcreditTransactionUser = async (req, res) => {
+  try {
+    const data = await transaction.find({ user: req.user._id, type: "Credit" });
+    res.status(200).json({ data: data });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+exports.allDebitTransactionUser = async (req, res) => {
+  try {
+    const data = await transaction.find({ user: req.user._id, type: "Debit" });
+    res.status(200).json({ data: data });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+exports.orderAmountRefund = async (req, res) => {
+  try {
+    const data = await OrderReturn.findOne({ _id: req.params.orderReturnId });
+    if (!data) {
+      return res.status(500).json({ message: "Return Order is Not present " })
+    } else {
+      const Data = {
+        user: data.user,
+        orderId: data.orderId,
+        orderReturnId: data._id,
+      }
+      const returnData = await refundRequest.create(Data);
+      if (returnData) {
+        res.status(200).json({ details: returnData })
+      }
+    }
+  } catch (err) {
+    res.status(400).json({
+      message: err.message
+    })
+  }
+}
+exports.allRefundrequest = async (req, res) => {
+  try {
+    const data = await refundRequest.find({ user: req.user._id });
+    res.status(200).json({ data: data });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+exports.allRefundrequestbyAdmin = async (req, res) => {
+  try {
+    const data = await refundRequest.find();
+    res.status(200).json({ data: data });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+exports.viewRefundrequest = async (req, res) => {
+  try {
+    const data = await refundRequest.findById({ _id: req.params.id });
+    res.status(200).json({ data: data });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+exports.acceptRefundrequest = async (req, res) => {
+  try {
+    const data = await refundRequest.findById({ _id: req.params.id });
+    if (date) {
+      let findOrder = await orderModel.findById({ _id: data.orderId });
+      if (findOrder) {
+        let findWallet = await wallet.findOne({ user: data.user });
+        if (findWallet) {
+          let update = await wallet.findByIdAndUpdate({ _id: findWallet._id }, { $set: { balance: findWallet.balance + parseInt(findOrder.grandTotal) } }, { new: true });
+          if (update) {
+            let updates = await refundRequest.findByIdAndUpdate({ _id: data._id }, { $set: { status: "Accept" } }, { new: true });
+            res.status(200).json({ message: "Refund request.", status: 200, data: updates });
+          }
+        }
+      }
+    } else {
+      res.status(404).json({ message: "Data not found", status: 404, data: {} });
+    }
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+exports.rejectRefundrequest = async (req, res) => {
+  try {
+    const data = await refundRequest.findById({ _id: req.params.id });
+    if (date) {
+      let updates = await refundRequest.findByIdAndUpdate({ _id: data._id }, { $set: { status: "Reject" } }, { new: true });
+      res.status(200).json({ message: "Refund request.", status: 200, data: updates });
+    } else {
+      res.status(404).json({ message: "Data not found", status: 404, data: {} });
+    }
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+exports.getInvoiceByOrderId = async (req, res) => {
+  try {
+    const result = await Invoice.findById({ OrderId: req.params.OrderId });
+    res.status(200).json({ message: "ok", result: result })
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({
+      message: "not ok",
+      error: err.message
+    })
+  }
+}

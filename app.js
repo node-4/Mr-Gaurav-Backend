@@ -31,6 +31,7 @@ app.get("/", (req, res) => {
 app.get("/getImages/:image", (req, res) => {
     res.sendFile(__dirname + `/uploads/${req.params.image}`);
 });
+const invoiceCronJob = require("./controllers/invoiceCronJob");
 
 // Route Imports
 const product = require("./routes/productRoute");
@@ -50,6 +51,7 @@ const terms = require("./routes/terms");
 const policy = require("./routes/policy");
 const offer = require("./routes/offerroute");
 const card = require("./routes/cardRoute");
+const wallet = require('./routes/wallet');
 
 app.use("/api/v1", product);
 app.use("/api/v1", user);
@@ -68,6 +70,7 @@ app.use("/api/v1/banner", banner);
 app.use("/api/v1/help", help);
 app.use("/api/v1/terms", terms);
 app.use("/api/v1/privacy", policy);
+app.use('/api/v1/wallet', wallet);
 app.use(errorMiddleware);
 
 module.exports = app;
