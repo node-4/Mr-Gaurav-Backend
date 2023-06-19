@@ -1,12 +1,12 @@
 const faq = require("../controllers/faq.controller");
+const express = require('express');
+const router = express();
 const { isAuthenticatedUser, authorizeRoles } = require("../middleware/auth");
-
-module.exports = (app) => {
-    app.post("/api/v1/admin/faq", isAuthenticatedUser, authorizeRoles("admin"), faq.create);
-    app.patch("/api/v1/admin/faq/:id",isAuthenticatedUser, authorizeRoles("admin"),faq.update);
-    app.get("/api/v1/admin/faq/:id", faq.getId);
-    app.get("/api/v1/admin/faq", faq.get);
-    app.delete("/api/v1/admin/faq/:id",isAuthenticatedUser, authorizeRoles("admin"),faq.delete);
-    app.get("/api/v1/faq/:id", faq.getId);
-    app.get("/api/v1/faq", faq.get);
-};
+router.post("/admin", isAuthenticatedUser, authorizeRoles("admin"), faq.create);
+router.patch("/admin/:id",isAuthenticatedUser, authorizeRoles("admin"),faq.update);
+router.get("/admin/:id", faq.getId);
+router.get("/admin/faq", faq.get);
+router.delete("/admin/:id",isAuthenticatedUser, authorizeRoles("admin"),faq.delete);
+router.get("/:id", faq.getId);
+router.get("/", faq.get);
+module.exports = router;

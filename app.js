@@ -52,6 +52,7 @@ const policy = require("./routes/policy");
 const offer = require("./routes/offerroute");
 const card = require("./routes/cardRoute");
 const wallet = require('./routes/wallet');
+const faq = require('./routes/faq.route');
 
 app.use("/api/v1", product);
 app.use("/api/v1", user);
@@ -72,7 +73,7 @@ app.use("/api/v1/terms", terms);
 app.use("/api/v1/privacy", policy);
 app.use('/api/v1/wallet', wallet);
 app.use('/api/v1/wallet', wallet);
-// require("./routes/faq.route")(app);
+app.use('/api/v1/faq', faq);
 
 app.use(errorMiddleware);
 
