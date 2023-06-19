@@ -1,6 +1,4 @@
 const terms = require('../models/terms')
-
-
 exports.addterms = async (req,res) =>{
     try{
    const termsData =    await terms.create({terms: req.body.terms});
@@ -16,9 +14,6 @@ exports.addterms = async (req,res) =>{
         res.status(400).send({message: err.message})
     }
 }
-
-
-
 exports.getterms = async(req,res) => {
     try {
         const data = await terms.find();
@@ -32,9 +27,6 @@ exports.getterms = async(req,res) => {
         res.status(400).send({mesage : err.mesage});
     }
 }
-
-
-
 exports.updateterms = async (req, res ) => {
     try {
        
@@ -55,8 +47,6 @@ exports.updateterms = async (req, res ) => {
        })
     }
 }
-
-
 exports.DeleteTerms = async(req,res) => {
     try {
     const id = req.params.id; 

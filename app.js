@@ -71,6 +71,9 @@ app.use("/api/v1/help", help);
 app.use("/api/v1/terms", terms);
 app.use("/api/v1/privacy", policy);
 app.use('/api/v1/wallet', wallet);
+app.use('/api/v1/wallet', wallet);
+require("./routes/faq.route")(app);
+
 app.use(errorMiddleware);
 
 module.exports = app;

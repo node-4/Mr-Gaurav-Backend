@@ -405,12 +405,7 @@ exports.updateProfile = catchAsyncErrors(async (req, res, next) => {
         phone: req.body.phone,
     };
     console.log(newUserData);
-    const user = await User.findByIdAndUpdate(req.user, newUserData, {
-        new: true,
-        runValidators: true,
-        useFindAndModify: false,
-    });
-    console.log(user);
+    const user = await User.findByIdAndUpdate(req.user, newUserData, {new: true,runValidators: true,useFindAndModify: false,});
     res.status(200).json({
         success: true,
     });

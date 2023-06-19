@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.route("/card/new").post(isAuthenticatedUser,createPaymentCard);
 router.route("/card/update/:id").put(updatePaymentCard);
-router.route("/card/getAllCard").get(getPaymentCard);
+router.route("/card/getAllCard").get(isAuthenticatedUser,getPaymentCard);
 router.route("/card/delete/:id").delete(DeletePaymentCard);
 
 module.exports = router;

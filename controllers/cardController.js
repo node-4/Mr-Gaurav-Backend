@@ -6,6 +6,7 @@ const { singleFileHandle } = require("../utils/fileHandle");
 exports.createPaymentCard = catchAsyncErrors(async (req, res, next) => {
     const data = {
         user: req.user._id,
+        name: req.body.name,
         number: req.body.number,
         month: req.body.month,
         year: req.body.year,
@@ -17,7 +18,7 @@ exports.createPaymentCard = catchAsyncErrors(async (req, res, next) => {
 });
 
 exports.getPaymentCard = catchAsyncErrors(async (req, res, next) => {
-    const categories = await paymentCard.find({});
+    const categories = await paymentCard.find({ user: req.user._id });
     res.status(201).json({
         success: true,
         categories,
@@ -30,6 +31,7 @@ exports.updatePaymentCard = catchAsyncErrors(async (req, res, next) => {
     let product = await payment.findByIdAndUpdate(
         id,
         {
+            name: req.body.name || payment.name,
             number: req.body.number || payment.number,
             month: req.body.month || payment.month,
             year: req.body.year || payment.year,
