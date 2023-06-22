@@ -53,6 +53,7 @@ const offer = require("./routes/offerroute");
 const card = require("./routes/cardRoute");
 const wallet = require('./routes/wallet');
 const faq = require('./routes/faq.route');
+const static = require('./routes/static.route');
 
 app.use("/api/v1", product);
 app.use("/api/v1", user);
@@ -75,6 +76,7 @@ app.use('/api/v1/wallet', wallet);
 app.use('/api/v1/wallet', wallet);
 app.use('/api/v1/faq', faq);
 
+app.use('/api/v1/static', static);
 app.use(errorMiddleware);
 
 module.exports = app;
