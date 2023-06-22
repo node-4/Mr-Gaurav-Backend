@@ -7,9 +7,9 @@ const mongoose = require("mongoose");
 const ErrorHander = require("../utils/errorhander");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const ApiFeatures = require("../utils/apifeatures");
-
+const xlsx = require("xlsx");
+const fs = require('fs')
 const { multipleFileHandle } = require("../utils/fileHandle");
-
 cloudinary.config({
     cloud_name: "dvwecihog",
     api_key: "364881266278834",
@@ -145,8 +145,8 @@ exports.updateProduct = catchAsyncErrors(async (req, res, next) => {
         console.log(req.body.images);
         let images = [];
         if (req.body.images) {
-            let obj ={
-                 img:  req.body.images
+            let obj = {
+                img: req.body.images
             }
             images.push(obj);
         } else {
@@ -261,8 +261,6 @@ exports.createProductReview = catchAsyncErrors(async (req, res, next) => {
         success: true,
     });
 });
-
-// Get All Reviews of a product
 exports.getProductReviews = catchAsyncErrors(async (req, res, next) => {
     const product = await Product.findById(req.query.id);
 
@@ -275,8 +273,6 @@ exports.getProductReviews = catchAsyncErrors(async (req, res, next) => {
         reviews: product.reviews,
     });
 });
-
-// Delete Review
 exports.deleteReview = catchAsyncErrors(async (req, res, next) => {
     const product = await Product.findById(req.query.productId);
 
@@ -322,7 +318,6 @@ exports.deleteReview = catchAsyncErrors(async (req, res, next) => {
         success: true,
     });
 });
-
 exports.createWishlist = catchAsyncErrors(async (req, res, next) => {
     const product = req.params.id;
     //console.log(user)
@@ -338,7 +333,6 @@ exports.createWishlist = catchAsyncErrors(async (req, res, next) => {
         message: "product addedd to wishlist Successfully",
     });
 });
-
 exports.removeFromWishlist = catchAsyncErrors(async (req, res, next) => {
     const wishlist = await Wishlist.findOne({ user: req.user._id });
     if (!wishlist) {
@@ -354,7 +348,6 @@ exports.removeFromWishlist = catchAsyncErrors(async (req, res, next) => {
         message: "Removed From Wishlist",
     });
 });
-
 exports.myWishlist = catchAsyncErrors(async (req, res, next) => {
     let myList = await Wishlist.findOne({ user: req.user._id }).populate(
         "products"
@@ -416,7 +409,6 @@ exports.getProductByCategory = catchAsyncErrors(async (req, res, next) => {
         });
     }
 });
-// Get All Product (Admin)
 exports.getNewArivalProducts = catchAsyncErrors(async (req, res, next) => {
     if (req.query.categoryType != (null || undefined)) {
         const products = await Product.find({
@@ -443,7 +435,6 @@ exports.getDemandedProducts = catchAsyncErrors(async (req, res, next) => {
         res.status(200).json({ success: true, products });
     }
 });
-
 exports.getProductSearch = catchAsyncErrors(async (req, res, next) => {
     try {
         let query = {};
@@ -465,3 +456,46 @@ exports.getProductSearch = catchAsyncErrors(async (req, res, next) => {
         });
     }
 });
+exports.uploadthroughExcel = async (req, res) => {
+    try {
+        console.log(req.file);
+        const workbook = xlsx.readFile(req.file.path);
+        const sheet_name_list = workbook.SheetNames;
+        const data = xlsx.utils.sheet_to_json(
+            workbook.Sheets[sheet_name_list[0]]
+        );
+        for (let i = 0; i < data.length; i++) {
+            console.log(i, "----------------", data[i]);
+
+            let findCategory;
+
+            if (data[i].category != (null || undefined)) {
+                findCategory = await category.findOne({ name: data[i].category, });
+                if (!findCategory) {
+                    response(res, ErrorCode.NOT_FOUND, {}, "Category data not found.");
+                }
+            }
+            let images = [{ img: data[i].image }];
+
+            const product = new Product({
+                name: data[i].name,
+                description: data[i].description,
+                price: data[i].price,
+                images: images,
+                category: findCategory._id,
+                Stock: data[i].Stock,
+            });
+            let a = await product.save();
+        }
+        fs.unlink(req.file.path, (err) => {
+            if (err) throw err;
+            console.log("Uploaded file deleted");
+        });
+        res.status(200).json({ message: "Product Data is Saved " });
+    } catch (err) {
+        console.log(err);
+        res.status(400).json({
+            message: err.message,
+        });
+    }
+};

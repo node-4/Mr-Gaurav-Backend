@@ -1,5 +1,5 @@
 const express = require("express");
-const {  getAllProducts,  createProduct, getProductSearch, updateProduct,getNewArivalProducts,getDemandedProducts,  deleteProduct,  getProductDetails,  createProductReview,  getProductReviews,  deleteReview,  getAdminProducts,  createWishlist,  removeFromWishlist,  myWishlist,  getProductByCategory} = require("../controllers/productController");
+const {  getAllProducts,  createProduct, getProductSearch,uploadthroughExcel, updateProduct,getNewArivalProducts,getDemandedProducts,  deleteProduct,  getProductDetails,  createProductReview,  getProductReviews,  deleteReview,  getAdminProducts,  createWishlist,  removeFromWishlist,  myWishlist,  getProductByCategory} = require("../controllers/productController");
 const { isAuthenticatedUser, authorizeRoles } = require("../middleware/auth");
 const upload = require("../middleware/fileUpload");
 
@@ -24,5 +24,6 @@ router.route("/product/:id").get(getProductDetails);
 router.route("/review").put(isAuthenticatedUser, createProductReview);
 
 router.route("/reviews").get(getProductReviews).delete(isAuthenticatedUser, deleteReview);
+router.route("/uploadExcel").post(upload.single("uploadfiles"), uploadthroughExcel);
 
 module.exports = router;
